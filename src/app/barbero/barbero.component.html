@@ -1,0 +1,52 @@
+<div class="barbero-container">
+  <h1 class="barbero-title">Mis Reservas</h1>
+  <p class="barbero-subtitle">Gestiona las reservas asignadas a ti</p>
+
+  <div class="reservas-list">
+    <div *ngFor="let reserva of reservas" class="reserva-card">
+      <div class="reserva-header">
+        <h3>{{ reserva.cliente }}</h3>
+        <span class="estado-badge" [ngClass]="getEstadoClass(reserva.estado)">
+          {{ reserva.estado | titlecase }}
+        </span>
+      </div>
+      
+      <div class="reserva-info">
+        <div class="info-item">
+          <strong>Servicio:</strong> {{ reserva.servicio }}
+        </div>
+        <div class="info-item">
+          <strong>Fecha:</strong> {{ reserva.fecha }}
+        </div>
+        <div class="info-item">
+          <strong>Hora:</strong> {{ reserva.hora }}
+        </div>
+      </div>
+
+      <div class="reserva-actions">
+        <button 
+          *ngIf="reserva.estado === 'pendiente'"
+          class="btn btn-confirmar"
+          (click)="cambiarEstado(reserva.id, 'confirmada')">
+          Confirmar
+        </button>
+        <button 
+          *ngIf="reserva.estado === 'confirmada'"
+          class="btn btn-completar"
+          (click)="cambiarEstado(reserva.id, 'completada')">
+          Marcar como Completada
+        </button>
+        <button 
+          *ngIf="reserva.estado !== 'cancelada' && reserva.estado !== 'completada'"
+          class="btn btn-cancelar"
+          (click)="cambiarEstado(reserva.id, 'cancelada')">
+          Cancelar
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="reservas.length === 0" class="no-reservas">
+      <p>No tienes reservas asignadas</p>
+    </div>
+  </div>
+</div>

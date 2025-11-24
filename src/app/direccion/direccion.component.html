@@ -1,0 +1,24 @@
+<!-- direccion.component.html -->
+
+<div class="container">
+
+    <!-- direccion.component.html -->
+    <div class="direccion-card" (click)="openMaps()">
+        <h3>Dirección</h3>
+    
+        <p class="direccion-texto">
+        <span class="punto"></span>
+        Coordenadas: -35.4269, -71.6550
+        </p>
+    
+        <div class="map-wrapper">
+        <!-- Mapa incrustado con coordenadas -->
+        <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d9919.827899278733!2d-71.65709133266179!3d-35.42694374980543!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x96b854d4999970ff%3A0xdf3e119d59134a76!2sEsmeralda%2C%20Talca%2C%20Maule!5e0!3m2!1ses!2scl!4v1686799654097!5m2!1ses!2scl"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+        </div>
+    </div>
+  
+</div>

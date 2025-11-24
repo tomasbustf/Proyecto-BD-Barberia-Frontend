@@ -1,0 +1,26 @@
+/* direccion.component.css */
+.direccion-card {
+    background: #1f1728;
+    color: #fff;
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+  }
+  
+  .direccion-texto {
+    margin-bottom: 12px;
+  }
+  
+  .map-wrapper {
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  /* que se vea el mapa pero no se pueda hacer zoom dentro de la página */
+  .map-wrapper iframe {
+    width: 100%;
+    height: 250px;
+    border: 0;
+    pointer-events: none; /* importante: así el click va al (click) del contenedor */
+  }
+  

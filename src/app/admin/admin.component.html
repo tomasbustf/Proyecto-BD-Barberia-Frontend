@@ -1,0 +1,145 @@
+<div class="admin-container">
+  <h1 class="admin-title">Panel de Administración</h1>
+  
+  <div class="tabs">
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'servicios'"
+      (click)="setActiveTab('servicios')">
+      Gestionar Servicios
+    </button>
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'barberos'"
+      (click)="setActiveTab('barberos')">
+      Gestionar Barberos
+    </button>
+  </div>
+
+  <!-- Tab de Servicios -->
+  <div *ngIf="activeTab === 'servicios'" class="tab-content">
+    <div class="form-section">
+      <h2>Agregar Nuevo Servicio</h2>
+      <form (ngSubmit)="agregarServicio()" class="form-card">
+        <div class="mb-3">
+          <label for="nombreServicio" class="form-label">Nombre del Servicio</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="nombreServicio"
+            [(ngModel)]="nuevoServicio.nombre"
+            name="nombreServicio"
+            required>
+        </div>
+        <div class="mb-3">
+          <label for="descripcionServicio" class="form-label">Descripción</label>
+          <textarea 
+            class="form-control" 
+            id="descripcionServicio"
+            [(ngModel)]="nuevoServicio.descripcion"
+            name="descripcionServicio"
+            rows="3"
+            required></textarea>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="precioServicio" class="form-label">Precio ($)</label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="precioServicio"
+              [(ngModel)]="nuevoServicio.precio"
+              name="precioServicio"
+              min="0"
+              required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="duracionServicio" class="form-label">Duración (minutos)</label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="duracionServicio"
+              [(ngModel)]="nuevoServicio.duracion"
+              name="duracionServicio"
+              min="0"
+              required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Agregar Servicio</button>
+      </form>
+    </div>
+
+    <div class="list-section">
+      <h2>Servicios Existentes</h2>
+      <div class="card-list">
+        <div *ngFor="let servicio of servicios" class="card-item">
+          <div class="card-content">
+            <h3>{{ servicio.nombre }}</h3>
+            <p>{{ servicio.descripcion }}</p>
+            <div class="card-info">
+              <span><strong>Precio:</strong> ${{ servicio.precio | number }}</span>
+              <span><strong>Duración:</strong> {{ servicio.duracion }} min</span>
+            </div>
+          </div>
+          <button class="btn btn-danger" (click)="eliminarServicio(servicio.id)">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab de Barberos -->
+  <div *ngIf="activeTab === 'barberos'" class="tab-content">
+    <div class="form-section">
+      <h2>Agregar Nuevo Barbero</h2>
+      <form (ngSubmit)="agregarBarbero()" class="form-card">
+        <div class="mb-3">
+          <label for="nombreBarbero" class="form-label">Nombre</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="nombreBarbero"
+            [(ngModel)]="nuevoBarbero.nombre"
+            name="nombreBarbero"
+            required>
+        </div>
+        <div class="mb-3">
+          <label for="emailBarbero" class="form-label">Email</label>
+          <input 
+            type="email" 
+            class="form-control" 
+            id="emailBarbero"
+            [(ngModel)]="nuevoBarbero.email"
+            name="emailBarbero"
+            required>
+        </div>
+        <div class="mb-3">
+          <label for="telefonoBarbero" class="form-label">Teléfono</label>
+          <input 
+            type="tel" 
+            class="form-control" 
+            id="telefonoBarbero"
+            [(ngModel)]="nuevoBarbero.telefono"
+            name="telefonoBarbero"
+            required>
+        </div>
+        <button type="submit" class="btn btn-primary">Agregar Barbero</button>
+      </form>
+    </div>
+
+    <div class="list-section">
+      <h2>Barberos Registrados</h2>
+      <div class="card-list">
+        <div *ngFor="let barbero of barberos" class="card-item">
+          <div class="card-content">
+            <h3>{{ barbero.nombre }}</h3>
+            <div class="card-info">
+              <span><strong>Email:</strong> {{ barbero.email }}</span>
+              <span><strong>Teléfono:</strong> {{ barbero.telefono }}</span>
+            </div>
+          </div>
+          <button class="btn btn-danger" (click)="eliminarBarbero(barbero.id)">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
