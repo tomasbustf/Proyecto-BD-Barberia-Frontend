@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { ServicioService } from '../services/servicio.service';
+import { Servicio } from '../models/servicio.model';
 
 @Component({
   selector: 'app-servicios',
@@ -10,8 +12,21 @@ import { AuthService } from '../services/auth.service';
   templateUrl: './servicios.component.html',
   styleUrl: './servicios.component.css'
 })
-export class ServiciosComponent {
-  constructor(public authService: AuthService, private router: Router) {}
+export class ServiciosComponent implements OnInit {
+  servicios: Servicio[] = [];
+
+  constructor(
+    public authService: AuthService, 
+    private router: Router,
+    private servicioService: ServicioService
+  ) {}
+
+  ngOnInit(): void {
+    this.servicioService.obtenerServicios().subscribe(servicios => {
+      // Solo mostrar servicios activos
+      this.servicios = servicios.filter(s => s.activo);
+    });
+  }
 
   canReserve(): boolean {
     return this.authService.canReserve();
@@ -21,7 +36,7 @@ export class ServiciosComponent {
     return this.authService.isInvitado();
   }
 
-  reservar(): void {
+  reservar(servicio?: string): void {
     // Verificar si el usuario puede reservar (solo usuarios autenticados pueden)
     if (!this.canReserve()) {
       // Mostrar mensaje y redirigir al login
@@ -30,7 +45,11 @@ export class ServiciosComponent {
       return;
     }
 
-    // Aquí se implementará la lógica de reserva cuando se conecte a la BD
-    alert('Funcionalidad de reserva próximamente disponible');
+    // Redirigir a la página de reserva con el servicio como parámetro opcional
+    if (servicio) {
+      this.router.navigate(['/reserva'], { queryParams: { servicio: servicio } });
+    } else {
+      this.router.navigate(['/reserva']);
+    }
   }
 }

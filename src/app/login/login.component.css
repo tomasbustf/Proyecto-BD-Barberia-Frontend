@@ -149,3 +149,21 @@ form {
     display: block;
     margin-bottom: 0.25rem;
 }
+
+.btn-link {
+    color: var(--color3);
+    text-decoration: none;
+    font-weight: 500;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+.text-decoration-underline {
+    text-decoration: underline;
+}

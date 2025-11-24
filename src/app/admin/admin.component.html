@@ -14,6 +14,12 @@
       (click)="setActiveTab('barberos')">
       Gestionar Barberos
     </button>
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'productos'"
+      (click)="setActiveTab('productos')">
+      Gestionar Productos
+    </button>
   </div>
 
   <!-- Tab de Servicios -->
@@ -65,6 +71,20 @@
               required>
           </div>
         </div>
+        <div class="mb-3">
+          <div class="form-check">
+            <input 
+              class="form-check-input" 
+              type="checkbox" 
+              id="activoServicio"
+              [(ngModel)]="nuevoServicio.activo"
+              name="activoServicio"
+              checked>
+            <label class="form-check-label" for="activoServicio">
+              Servicio activo (disponible para reservas)
+            </label>
+          </div>
+        </div>
         <button type="submit" class="btn btn-primary">Agregar Servicio</button>
       </form>
     </div>
@@ -79,9 +99,21 @@
             <div class="card-info">
               <span><strong>Precio:</strong> ${{ servicio.precio | number }}</span>
               <span><strong>Duración:</strong> {{ servicio.duracion }} min</span>
+              <span [class.text-success]="servicio.activo" [class.text-danger]="!servicio.activo">
+                <strong>Estado:</strong> {{ servicio.activo ? 'Activo' : 'Inactivo' }}
+              </span>
             </div>
           </div>
-          <button class="btn btn-danger" (click)="eliminarServicio(servicio.id)">Eliminar</button>
+          <div class="card-actions">
+            <button 
+              class="btn btn-sm" 
+              [class.btn-success]="!servicio.activo"
+              [class.btn-warning]="servicio.activo"
+              (click)="toggleServicioActivo(servicio)">
+              {{ servicio.activo ? 'Desactivar' : 'Activar' }}
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="eliminarServicio(servicio.id)">Eliminar</button>
+          </div>
         </div>
       </div>
     </div>
@@ -122,6 +154,31 @@
             name="telefonoBarbero"
             required>
         </div>
+        <div class="mb-3">
+          <label for="googleCalendarEmailBarbero" class="form-label">Email de Google Calendar (opcional)</label>
+          <input 
+            type="email" 
+            class="form-control" 
+            id="googleCalendarEmailBarbero"
+            [(ngModel)]="nuevoBarbero.googleCalendarEmail"
+            name="googleCalendarEmailBarbero"
+            placeholder="barbero@gmail.com">
+          <small class="form-text text-muted">Email de Google donde se enviarán las citas del barbero</small>
+        </div>
+        <div class="mb-3">
+          <div class="form-check">
+            <input 
+              class="form-check-input" 
+              type="checkbox" 
+              id="activoBarbero"
+              [(ngModel)]="nuevoBarbero.activo"
+              name="activoBarbero"
+              checked>
+            <label class="form-check-label" for="activoBarbero">
+              Barbero activo (disponible para reservas)
+            </label>
+          </div>
+        </div>
         <button type="submit" class="btn btn-primary">Agregar Barbero</button>
       </form>
     </div>
@@ -135,11 +192,122 @@
             <div class="card-info">
               <span><strong>Email:</strong> {{ barbero.email }}</span>
               <span><strong>Teléfono:</strong> {{ barbero.telefono }}</span>
+              <span *ngIf="barbero.googleCalendarEmail"><strong>Google Calendar:</strong> {{ barbero.googleCalendarEmail }}</span>
+              <span [class.text-success]="barbero.activo" [class.text-danger]="!barbero.activo">
+                <strong>Estado:</strong> {{ barbero.activo ? 'Activo' : 'Inactivo' }}
+              </span>
             </div>
           </div>
-          <button class="btn btn-danger" (click)="eliminarBarbero(barbero.id)">Eliminar</button>
+          <div class="card-actions">
+            <button 
+              class="btn btn-sm" 
+              [class.btn-success]="!barbero.activo"
+              [class.btn-warning]="barbero.activo"
+              (click)="toggleBarberoActivo(barbero)">
+              {{ barbero.activo ? 'Desactivar' : 'Activar' }}
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="eliminarBarbero(barbero.id)">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab de Productos -->
+  <div *ngIf="activeTab === 'productos'" class="tab-content">
+    <div class="form-section">
+      <h2>Agregar Nuevo Producto</h2>
+      <form (ngSubmit)="agregarProducto()" class="form-card">
+        <div class="mb-3">
+          <label for="nombreProducto" class="form-label">Nombre del Producto</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="nombreProducto"
+            [(ngModel)]="nuevoProducto.nombre"
+            name="nombreProducto"
+            required>
+        </div>
+        <div class="mb-3">
+          <label for="descripcionProducto" class="form-label">Descripción</label>
+          <textarea 
+            class="form-control" 
+            id="descripcionProducto"
+            [(ngModel)]="nuevoProducto.descripcion"
+            name="descripcionProducto"
+            rows="3"
+            required></textarea>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="precioProducto" class="form-label">Precio ($)</label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="precioProducto"
+              [(ngModel)]="nuevoProducto.precio"
+              name="precioProducto"
+              min="0"
+              required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="stockProducto" class="form-label">Stock</label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="stockProducto"
+              [(ngModel)]="nuevoProducto.stock"
+              name="stockProducto"
+              min="0"
+              required>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="form-check">
+            <input 
+              class="form-check-input" 
+              type="checkbox" 
+              id="activoProducto"
+              [(ngModel)]="nuevoProducto.activo"
+              name="activoProducto">
+            <label class="form-check-label" for="activoProducto">
+              Producto activo (disponible para venta)
+            </label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Agregar Producto</button>
+      </form>
+    </div>
+
+    <div class="list-section">
+      <h2>Productos Existentes</h2>
+      <div class="card-list">
+        <div *ngFor="let producto of productos" class="card-item">
+          <div class="card-content">
+            <h3>{{ producto.nombre }}</h3>
+            <p>{{ producto.descripcion }}</p>
+            <div class="card-info">
+              <span><strong>Precio:</strong> ${{ producto.precio | number }}</span>
+              <span><strong>Stock:</strong> {{ producto.stock }} unidades</span>
+              <span [class.text-success]="producto.activo" [class.text-danger]="!producto.activo">
+                <strong>Estado:</strong> {{ producto.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button 
+              class="btn btn-sm" 
+              [class.btn-success]="!producto.activo"
+              [class.btn-warning]="producto.activo"
+              (click)="toggleProductoActivo(producto)">
+              {{ producto.activo ? 'Desactivar' : 'Activar' }}
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="eliminarProducto(producto.id)">Eliminar</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+

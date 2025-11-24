@@ -37,7 +37,7 @@ export class LoginComponent {
             this.router.navigate(['/home']);
           }, 100);
         } else {
-          this.errorMessage = 'Email o contraseña incorrectos';
+          this.errorMessage = 'Email o contraseña incorrectos. ¿No tienes una cuenta?';
         }
       },
       error: () => {
@@ -45,6 +45,10 @@ export class LoginComponent {
         this.errorMessage = 'Error al iniciar sesión. Intente nuevamente.';
       }
     });
+  }
+
+  irARegistro(): void {
+    this.router.navigate(['/registro']);
   }
 
   loginAsGuest(): void {

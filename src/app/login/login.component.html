@@ -29,6 +29,11 @@
 
       <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
         {{ errorMessage }}
+        <div *ngIf="errorMessage.includes('¿No tienes una cuenta?')" class="mt-2">
+          <button type="button" class="btn btn-link p-0 text-decoration-underline" (click)="irARegistro()">
+            Crear una cuenta nueva
+          </button>
+        </div>
       </div>
 
       <button 
@@ -46,10 +51,20 @@
 
     <button 
       type="button" 
-      class="btn btn-secondary w-100"
+      class="btn btn-secondary w-100 mb-3"
       (click)="loginAsGuest()">
       Entrar como Invitado
     </button>
+
+    <div class="text-center">
+      <p class="mb-0">¿No tienes una cuenta?</p>
+      <button 
+        type="button" 
+        class="btn btn-link p-0"
+        (click)="irARegistro()">
+        Regístrate aquí
+      </button>
+    </div>
 
     <div class="login-info mt-4">
       <p class="text-center mb-2"><small>Credenciales de prueba:</small></p>

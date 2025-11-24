@@ -35,6 +35,9 @@ export class AuthService {
   ];
 
   constructor() {
+    // Cargar usuarios desde localStorage
+    this.cargarUsuariosDesdeLocalStorage();
+    
     // Verificar si hay un usuario guardado en localStorage de forma segura
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
@@ -136,6 +139,91 @@ export class AuthService {
   canReserve(): boolean {
     const user = this.currentUserSubject.value;
     return user?.rol === UserRole.USUARIO;
+  }
+
+  // Método para registrar nuevos usuarios (solo clientes)
+  registrarUsuario(nombre: string, email: string, password: string): Observable<{ success: boolean; message: string }> {
+    return new Observable(observer => {
+      try {
+        // Verificar si el email ya existe
+        const usuarioExistente = this.users.find(u => u.email === email);
+        if (usuarioExistente) {
+          observer.next({
+            success: false,
+            message: 'Este email ya está registrado. Por favor, inicia sesión.'
+          });
+          observer.complete();
+          return;
+        }
+
+        // Crear nuevo usuario con rol USUARIO (cliente)
+        const nuevoId = this.users.length > 0 
+          ? Math.max(...this.users.map(u => u.id)) + 1 
+          : 1;
+
+        const nuevoUsuario: User = {
+          id: nuevoId,
+          email: email,
+          password: password,
+          nombre: nombre,
+          rol: UserRole.USUARIO
+        };
+
+        this.users.push(nuevoUsuario);
+        this.guardarUsuariosEnLocalStorage();
+
+        observer.next({
+          success: true,
+          message: 'Cuenta creada exitosamente. Ya puedes iniciar sesión.'
+        });
+        observer.complete();
+      } catch (error) {
+        console.error('Error al registrar usuario:', error);
+        observer.next({
+          success: false,
+          message: 'Error al crear la cuenta. Intente nuevamente.'
+        });
+        observer.complete();
+      }
+    });
+  }
+
+  private guardarUsuariosEnLocalStorage(): void {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('users', JSON.stringify(this.users));
+      }
+    } catch (error) {
+      console.warn('Error al guardar usuarios en localStorage:', error);
+    }
+  }
+
+  private cargarUsuariosDesdeLocalStorage(): void {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const usuariosGuardados = localStorage.getItem('users');
+        if (usuariosGuardados) {
+          this.users = JSON.parse(usuariosGuardados);
+        }
+      }
+    } catch (error) {
+      console.warn('Error al cargar usuarios desde localStorage:', error);
+    }
+  }
+
+  // Verificar si un email está disponible
+  verificarEmailDisponible(email: string): Observable<boolean> {
+    return new Observable(observer => {
+      try {
+        const usuarioExistente = this.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+        observer.next(!usuarioExistente);
+        observer.complete();
+      } catch (error) {
+        console.error('Error al verificar email:', error);
+        observer.next(false);
+        observer.complete();
+      }
+    });
   }
 }
 

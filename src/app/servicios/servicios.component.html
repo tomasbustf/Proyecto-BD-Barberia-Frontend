@@ -1,80 +1,56 @@
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="hero-content">
+      <h1 class="hero-title">Nuestros Servicios</h1>
+      <p class="hero-subtitle">Descubre nuestra amplia gama de servicios profesionales de barbería</p>
+    </div>
+  </div>
+</section>
 
+<!-- Servicios Section -->
+<section class="servicios-section">
+  <div class="container">
+    <div *ngIf="isInvitado()" class="alert alert-info" role="alert">
+      <strong>Modo Invitado:</strong> Puedes ver los servicios disponibles, pero necesitas registrarte como usuario para realizar reservas.
+    </div>
 
-<h1>Servicios disponibles</h1>
+    <div *ngIf="servicios.length === 0" class="no-servicios">
+      <div class="no-servicios-content">
+        <i class="bi bi-info-circle"></i>
+        <h3>No hay servicios disponibles</h3>
+        <p>En este momento no contamos con servicios disponibles. Vuelve pronto para ver nuestras ofertas.</p>
+      </div>
+    </div>
 
-<div *ngIf="isInvitado()" class="alert alert-info" role="alert">
-  <strong>Modo Invitado:</strong> Puedes ver los servicios disponibles, pero necesitas registrarte como usuario para realizar reservas.
-</div>
-
-
-<div class="container">
-
-
-
-    <div class="row row-cols-1 row-cols-md-2 g-4">
-        
-        <div class="col">
-          <div class="card">
-            <img src="..." class="card-img-top" alt="...">
-          
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              <button 
-                class="btn btn-primary"
-                (click)="reservar()">
-                Reservar
-              </button>
+    <div *ngIf="servicios.length > 0" class="servicios-grid">
+      <div class="servicio-card" *ngFor="let servicio of servicios">
+        <div class="servicio-header">
+          <h3 class="servicio-title">{{ servicio.nombre }}</h3>
+        </div>
+        <div class="servicio-body">
+          <p class="servicio-descripcion">{{ servicio.descripcion }}</p>
+          <div class="servicio-info">
+            <div class="info-item">
+              <i class="bi bi-currency-dollar"></i>
+              <span class="info-label">Precio:</span>
+              <span class="info-value">${{ servicio.precio | number }}</span>
+            </div>
+            <div class="info-item">
+              <i class="bi bi-clock"></i>
+              <span class="info-label">Duración:</span>
+              <span class="info-value">{{ servicio.duracion }} min</span>
             </div>
           </div>
         </div>
-
-        <div class="col">
-          <div class="card">
-            <img src="..." class="card-img-top" alt="...">
-          
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              <button 
-                class="btn btn-primary"
-                (click)="reservar()">
-                Reservar
-              </button>
-            </div>
-          </div>
+        <div class="servicio-footer">
+          <button 
+            class="btn btn-primary"
+            (click)="reservar(servicio.nombre)">
+            <i class="bi bi-calendar-check"></i> Reservar Ahora
+          </button>
         </div>
-
-        <div class="col">
-          <div class="card">
-            <img src="..." class="card-img-top" alt="...">
-          
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              <button 
-                class="btn btn-primary"
-                (click)="reservar()">
-                Reservar
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="col">
-          <div class="card">
-            <img src="..." class="card-img-top" alt="...">
-          
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              <button 
-                class="btn btn-primary"
-                (click)="reservar()">
-                Reservar
-              </button>
-            </div>
-          </div>
-        </div>
-
-</div>
+      </div>
+    </div>
+  </div>
+</section>
