@@ -225,5 +225,26 @@ export class AuthService {
       }
     });
   }
+
+  // Obtener usuario por email
+  obtenerUsuarioPorEmail(email: string): User | undefined {
+    return this.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  }
+
+  // Obtener usuarios por rol
+  obtenerUsuariosPorRol(rol: UserRole): User[] {
+    return this.users.filter(u => u.rol === rol);
+  }
+
+  // Cambiar rol de un usuario
+  cambiarRolUsuario(email: string, nuevoRol: UserRole): boolean {
+    const usuario = this.obtenerUsuarioPorEmail(email);
+    if (usuario) {
+      usuario.rol = nuevoRol;
+      this.guardarUsuariosEnLocalStorage();
+      return true;
+    }
+    return false;
+  }
 }
 

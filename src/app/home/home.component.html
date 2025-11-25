@@ -11,6 +11,52 @@
   </div>
 </section>
 
+<!-- Promociones Section -->
+<section class="promociones-section" *ngIf="promociones.length > 0">
+  <div class="container">
+    <h2 class="section-title">
+      <i class="bi bi-tag-fill"></i> Promociones Especiales
+    </h2>
+    <p class="section-description">
+      Aprovecha nuestras ofertas especiales y obtén descuentos exclusivos en servicios y productos.
+    </p>
+    <div class="promociones-grid">
+      <div class="promocion-card" *ngFor="let promocion of promociones">
+        <div class="promocion-badge">
+          <i class="bi bi-percent"></i> {{ promocion.porcentajeDescuento }}% OFF
+        </div>
+        <div class="promocion-content">
+          <ng-container *ngIf="obtenerServicioPorPromocion(promocion) as servicio">
+            <h3 class="promocion-title">
+              <ng-container *ngIf="obtenerProductoPorPromocion(promocion) as producto">
+                {{ servicio.nombre }} + {{ producto.nombre }}
+              </ng-container>
+              <ng-container *ngIf="!obtenerProductoPorPromocion(promocion)">
+                {{ servicio.nombre }}
+              </ng-container>
+            </h3>
+            <p class="promocion-text">
+              <ng-container *ngIf="obtenerProductoPorPromocion(promocion) as producto">
+                Llevando <strong>{{ servicio.nombre }}</strong> + <strong>{{ producto.nombre }}</strong> 
+                obtienes un <strong>{{ promocion.porcentajeDescuento }}% de descuento</strong> en el total.
+              </ng-container>
+              <ng-container *ngIf="!obtenerProductoPorPromocion(promocion)">
+                Reservando <strong>{{ servicio.nombre }}</strong> obtienes un 
+                <strong>{{ promocion.porcentajeDescuento }}% de descuento</strong>.
+              </ng-container>
+            </p>
+            <p class="promocion-text">
+              <i class="bi bi-calendar-event"></i>
+              Válido hasta: {{ promocion.fechaFin | date:'short' }}
+            </p>
+          </ng-container>
+          <a routerLink="/servicios" class="btn btn-primary">Ver Detalles</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Resumen de Secciones -->
 <section class="resumen-section">
   <div class="container">
@@ -105,6 +151,3 @@
     </div>
   </div>
 </section>
-=======
-<h1>Lucas Polla Pushed</h1>
->>>>>>> 8f38de0b277ac745ce941862dfdf734af15ff6ce

@@ -7,11 +7,13 @@ import { ProductoService } from '../services/producto.service';
 import { ReservaService } from '../services/reserva.service';
 import { BarberoService } from '../services/barbero.service';
 import { ServicioService } from '../services/servicio.service';
+import { PromocionService } from '../services/promocion.service';
 import { GoogleCalendarService } from '../services/google-calendar.service';
 import { User, UserRole } from '../models/user.model';
 import { Producto } from '../models/producto.model';
 import { Barbero } from '../models/barbero.model';
 import { Servicio } from '../models/servicio.model';
+import { Promocion } from '../models/promocion.model';
 
 interface DiaSemana {
   fecha: Date;
@@ -41,6 +43,8 @@ export class ReservaComponent implements OnInit {
   productos: Producto[] = [];
   productosSeleccionados: Map<number, boolean> = new Map();
   servicioSeleccionado: string = '';
+  promocionAplicable: Promocion | null = null;
+  promocionPreseleccionada: boolean = false; // Indica si la promoción fue preseleccionada desde servicios
   
   // Calendario semanal
   semanaActual: DiaSemana[] = [];
@@ -59,6 +63,7 @@ export class ReservaComponent implements OnInit {
     private reservaService: ReservaService,
     private barberoService: BarberoService,
     private servicioService: ServicioService,
+    private promocionService: PromocionService,
     private googleCalendarService: GoogleCalendarService
   ) {
     this.inicializarFormulario();
@@ -67,14 +72,6 @@ export class ReservaComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Obtener el servicio desde los parámetros de ruta si existe
-    this.route.queryParams.subscribe(params => {
-      if (params['servicio']) {
-        this.servicioSeleccionado = params['servicio'];
-        this.reservaForm.patchValue({ servicio: params['servicio'] });
-      }
-    });
-
     // Cargar lista de barberos
     this.cargarBarberos();
     
@@ -84,8 +81,83 @@ export class ReservaComponent implements OnInit {
     // Cargar productos
     this.cargarProductos();
     
+    // Obtener parámetros de ruta después de cargar los datos
+    this.route.queryParams.subscribe(params => {
+      if (params['servicio']) {
+        this.servicioSeleccionado = params['servicio'];
+        this.reservaForm.patchValue({ servicio: params['servicio'] });
+      }
+      
+      // Si hay una promoción, cargarla y preseleccionar servicio y producto
+      if (params['promocionId']) {
+        const promocionId = parseInt(params['promocionId'], 10);
+        this.promocionPreseleccionada = true;
+        this.cargarPromocionYPreseleccionar(promocionId);
+      }
+    });
+    
     // Cargar disponibilidad
     this.cargarDisponibilidad();
+
+    // Suscribirse a cambios en servicio y productos para verificar promociones
+    this.reservaForm.get('servicio')?.valueChanges.subscribe(() => {
+      this.verificarPromocion();
+    });
+
+    this.reservaForm.get('productos')?.valueChanges.subscribe(() => {
+      this.verificarPromocion();
+    });
+  }
+
+  cargarPromocionYPreseleccionar(promocionId: number): void {
+    // Esperar a que los servicios y productos estén cargados
+    setTimeout(() => {
+      const promocion = this.promocionService.obtenerPromocionPorId(promocionId);
+      
+      if (!promocion) {
+        console.warn('Promoción no encontrada');
+        return;
+      }
+
+      // Preseleccionar el servicio
+      const servicio = this.servicios.find(s => s.id === promocion.servicioId);
+      if (servicio) {
+        this.servicioSeleccionado = servicio.nombre;
+        this.reservaForm.patchValue({ servicio: servicio.nombre });
+      }
+
+      // Si la promoción incluye un producto, agregarlo automáticamente
+      if (promocion.productoId) {
+        const producto = this.productos.find(p => p.id === promocion.productoId && p.activo);
+        if (producto) {
+          // Verificar si el producto ya está en el FormArray
+          const productosArray = this.reservaForm.get('productos') as FormArray;
+          const productoYaAgregado = productosArray.controls.some(
+            control => control.get('id')?.value === producto.id
+          );
+
+          if (!productoYaAgregado) {
+            // Agregar el producto al FormArray (usando la misma estructura que toggleProducto)
+            productosArray.push(this.fb.group({
+              id: [producto.id],
+              nombre: [producto.nombre],
+              precio: [producto.precio]
+            }));
+            
+            // Marcar el producto como seleccionado en el Map
+            this.productosSeleccionados.set(producto.id, true);
+          }
+        }
+      }
+
+      // Establecer la promoción aplicable
+      this.promocionAplicable = promocion;
+      
+      // Verificar promoción después de un pequeño delay para asegurar que todo esté cargado
+      setTimeout(() => {
+        this.verificarPromocion();
+      }, 100);
+    }, 200);
   }
 
   inicializarFormulario(): void {
@@ -164,10 +236,77 @@ export class ReservaComponent implements OnInit {
     return servicio?.precio || 0;
   }
 
+  verificarPromocion(): void {
+    this.promocionAplicable = null;
+    
+    const nombreServicio = this.reservaForm.get('servicio')?.value;
+    if (!nombreServicio) {
+      return;
+    }
+
+    const servicio = this.servicios.find(s => s.nombre === nombreServicio);
+    if (!servicio) {
+      return;
+    }
+
+    // Verificar si hay promoción solo para el servicio
+    let promocion = this.promocionService.obtenerPromocionPorServicio(servicio.id);
+    
+    // Si hay productos seleccionados, verificar si hay promoción para servicio + producto
+    const productosArray = this.reservaForm.get('productos') as FormArray;
+    if (productosArray.length > 0) {
+      // Buscar promoción que coincida con algún producto seleccionado
+      productosArray.controls.forEach(control => {
+        const productoId = control.get('id')?.value; // Usar 'id' en lugar de 'productoId'
+        if (productoId) {
+          const promocionCombo = this.promocionService.obtenerPromocionPorServicioYProducto(servicio.id, productoId);
+          if (promocionCombo) {
+            promocion = promocionCombo;
+          }
+        }
+      });
+    }
+
+    this.promocionAplicable = promocion || null;
+  }
+
+  calcularDescuento(): number {
+    if (!this.promocionAplicable) {
+      return 0;
+    }
+
+    const precioServicio = this.obtenerPrecioServicio();
+    let totalSinDescuento = precioServicio;
+
+    // Si la promoción requiere un producto específico, verificar si está seleccionado
+    if (this.promocionAplicable.productoId) {
+      const productosArray = this.reservaForm.get('productos') as FormArray;
+      const productoSeleccionado = productosArray.controls.find(
+        control => control.get('id')?.value === this.promocionAplicable!.productoId
+      );
+      
+      if (!productoSeleccionado) {
+        // Si la promoción requiere un producto específico pero no está seleccionado, no aplicar descuento
+        return 0;
+      }
+      
+      // Si el producto está seleccionado, aplicar descuento al total (servicio + producto)
+      const precioProducto = productoSeleccionado.get('precio')?.value || 0;
+      totalSinDescuento = precioServicio + precioProducto;
+    } else {
+      // Si la promoción es solo para el servicio, aplicar descuento solo al servicio
+      totalSinDescuento = precioServicio;
+    }
+
+    return totalSinDescuento * (this.promocionAplicable.porcentajeDescuento / 100);
+  }
+
   calcularTotal(): number {
     const precioServicio = this.obtenerPrecioServicio();
     const totalProductos = this.calcularTotalProductos();
-    return precioServicio + totalProductos;
+    const totalSinDescuento = precioServicio + totalProductos;
+    const descuento = this.calcularDescuento();
+    return totalSinDescuento - descuento;
   }
 
   generarHorarios(): void {

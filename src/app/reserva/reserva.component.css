@@ -268,10 +268,16 @@
   height: 100%;
 }
 
-.producto-card:hover {
+.producto-card:hover:not(.disabled) {
   border-color: #0d6efd;
   box-shadow: 0 2px 8px rgba(13, 110, 253, 0.2);
   transform: translateY(-2px);
+}
+
+.producto-card.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background-color: #f8f9fa;
 }
 
 .producto-seleccionado {
