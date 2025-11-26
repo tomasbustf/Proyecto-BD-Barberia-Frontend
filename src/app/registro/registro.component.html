@@ -4,16 +4,29 @@
     <p class="registro-subtitle">Regístrate para poder realizar reservas</p>
     
     <form (ngSubmit)="onSubmit()" #registroForm="ngForm">
-      <div class="mb-3">
-        <label for="nombre" class="form-label">Nombre Completo</label>
-        <input 
-          type="text" 
-          class="form-control" 
-          id="nombre"
-          [(ngModel)]="nombre"
-          name="nombre"
-          required
-          placeholder="Juan Pérez">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="nombre" class="form-label">Nombre</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="nombre"
+            [(ngModel)]="nombre"
+            name="nombre"
+            required
+            placeholder="Jorge">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="apellido" class="form-label">Apellidos</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="apellido"
+            [(ngModel)]="apellido"
+            name="apellido"
+            required
+            placeholder="Nitales Rico">
+        </div>
       </div>
       
       <div class="mb-3">

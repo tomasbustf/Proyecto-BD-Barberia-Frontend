@@ -13,6 +13,7 @@ import { AuthService } from '../services/auth.service';
 })
 export class RegistroComponent {
   nombre: string = '';
+  apellido: string = '';
   email: string = '';
   password: string = '';
   confirmPassword: string = '';
@@ -85,6 +86,11 @@ export class RegistroComponent {
       return;
     }
 
+    if (!this.apellido.trim()) {
+      this.errorMessage = 'Por favor ingrese su apellido';
+      return;
+    }
+
     if (!this.email.trim()) {
       this.errorMessage = 'Por favor ingrese su email';
       return;
@@ -121,7 +127,10 @@ export class RegistroComponent {
 
     this.isLoading = true;
 
-    this.authService.registrarUsuario(this.nombre, this.email, this.password).subscribe({
+    // Combinar nombre y apellido para el registro
+    const nombreCompleto = `${this.nombre.trim()} ${this.apellido.trim()}`;
+
+    this.authService.registrarUsuario(nombreCompleto, this.email, this.password).subscribe({
       next: (result) => {
         this.isLoading = false;
         if (result.success) {
